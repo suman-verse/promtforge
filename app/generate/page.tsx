@@ -1,0 +1,140 @@
+'use client';
+
+import React, { useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { SmartConfigForm } from '@/components/generator/SmartConfigForm';
+import { PromptEditor } from '@/components/generator/PromptEditor';
+import { GeneratedPromptResult, PromptGeneratorInput } from '@/lib/ai/promptEngine';
+import { Sparkles, ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
+
+function GeneratorContent() {
+  const searchParams = useSearchParams();
+  const initialCategory = searchParams.get('category') || undefined;
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [result, setResult] = useState<GeneratedPromptResult | null>(null);
+  const [currentInput, setCurrentInput] = useState<PromptGeneratorInput | null>(null);
+
+  const handleGenerate = async (data: PromptGeneratorInput) => {
+    setIsLoading(true);
+    setCurrentInput(data);
+    try {
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error('API request failed');
+      const json: GeneratedPromptResult = await res.json();
+      setResult(json);
+      setTimeout(() => {
+        document.getElementById('prompt-result-section')?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    } catch {} finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleModify = (mode: 'shorten' | 'expand' | 'beginner' | 'expert') => {
+    if (!result || !currentInput) return;
+    let modifiedGoal = currentInput.goal;
+    let modifiedComplexity = currentInput.complexity;
+    if (mode === 'shorten') modifiedGoal = `Short concise request: ${currentInput.goal}`;
+    else if (mode === 'expand') modifiedGoal = `Comprehensive in-depth request: ${currentInput.goal}. Provide exhaustive edge case analysis and complete implementations.`;
+    else if (mode === 'beginner') modifiedComplexity = 'Beginner / Step-by-step tutorial level';
+    else if (mode === 'expert') modifiedComplexity = 'Principal / Senior Staff Architecture level';
+    handleGenerate({ ...currentInput, goal: modifiedGoal, complexity: modifiedComplexity });
+  };
+
+  const handleImprove = async () => {
+    if (!result) return;
+    setIsLoading(true);
+    try {
+      const res = await fetch('/api/improve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          rawPrompt: result.promptText,
+          options: { clarity: true, specificity: true, constraints: true, format: true },
+        }),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        setResult({
+          ...result,
+          promptText: json.improvedText,
+          quality: { ...result.quality, score: Math.max(result.quality.score, json.score) },
+        });
+      }
+    } catch {} finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto px-6 py-10 space-y-8">
+      <div className="space-y-3">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 text-sm font-medium transition-colors hover:underline"
+          style={{ color: 'var(--text-muted)' }}
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          Home
+        </Link>
+        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-main">
+          What do you want to accomplish?
+        </h1>
+        <p className="text-base" style={{ color: 'var(--text-muted)' }}>
+          Describe your goal. We&apos;ll structure it into a clear, high-scoring AI prompt.
+        </p>
+      </div>
+
+      <div className="card p-8">
+        <SmartConfigForm
+          onGenerate={handleGenerate}
+          isLoading={isLoading}
+          initialCategory={initialCategory}
+        />
+      </div>
+
+      {result && (
+        <div id="prompt-result-section" className="space-y-4 animate-fade-up">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-bold text-main tracking-tight flex items-center gap-2">
+              <Sparkles className="w-5 h-5" style={{ color: 'var(--accent)' }} />
+              Engineered Prompt Result
+            </h2>
+            <span
+              className="text-xs font-mono px-2.5 py-1 rounded-md"
+              style={{ background: 'var(--bg-subtle)', color: 'var(--text-muted)' }}
+            >
+              {result.model}
+            </span>
+          </div>
+          <PromptEditor
+            promptText={result.promptText}
+            quality={result.quality}
+            onTextChange={(newText) => setResult({ ...result, promptText: newText })}
+            onRegenerate={() => currentInput && handleGenerate(currentInput)}
+            onImprove={handleImprove}
+            onModify={handleModify}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function GeneratePage() {
+  return (
+    <Suspense fallback={
+      <div className="max-w-4xl mx-auto px-6 py-16 text-center" style={{ color: 'var(--text-muted)' }}>
+        Loading generator...
+      </div>
+    }>
+      <GeneratorContent />
+    </Suspense>
+  );
+}

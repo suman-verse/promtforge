@@ -1,0 +1,6 @@
+# Vercel build ignore — exclude dev-only files
+.agents/
+.gemini/
+tsc_output.txt
+*.log
+*.tsbuildinfo

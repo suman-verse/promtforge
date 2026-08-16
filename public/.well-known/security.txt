@@ -1,0 +1,18 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA256
+
+Contact: mailto:security@promptforge.app
+Contact: https://suman-verse.vercel.app/
+Expires: 2027-08-16T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://promptforge.vercel.app/.well-known/security.txt
+Policy: https://promptforge.vercel.app/security-policy
+Acknowledgments: https://promptforge.vercel.app/about
+
+# PromptForge Security Policy
+# Report vulnerabilities responsibly via the contact above.
+# We commit to acknowledging reports within 72 hours.
+-----BEGIN PGP SIGNATURE-----
+
+# (Sign this file with GPG once you have a key set up)
+-----END PGP SIGNATURE-----
