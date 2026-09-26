@@ -20,20 +20,19 @@ export function Navbar() {
 
   const links = [
     { href: '/generate', label: 'Generate' },
-    { href: '/explore',  label: 'Explore'  },
-    { href: '/improve',  label: 'Improve'  },
-    { href: '/about',    label: 'About'    },
+    { href: '/explore', label: 'Explore' },
+    { href: '/improve', label: 'Improve' },
+    { href: '/about', label: 'About' },
   ];
 
   const active = (path: string) => pathname === path;
 
   return (
     <header
-      className={`sticky top-0 z-50 transition-all duration-300 ${
-        scrolled
+      className={`sticky top-0 z-50 transition-all duration-300 ${scrolled
           ? 'bg-card border-b border-theme shadow-sm'
           : 'bg-transparent border-b border-transparent'
-      }`}
+        }`}
       style={{ backdropFilter: scrolled ? 'blur(16px)' : 'none' }}
     >
       <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
@@ -58,11 +57,10 @@ export function Navbar() {
             <Link
               key={link.href}
               href={link.href}
-              className={`px-3.5 py-1.5 text-sm font-medium rounded-lg transition-all duration-150 ${
-                active(link.href)
+              className={`px-3.5 py-1.5 text-sm font-medium rounded-lg transition-all duration-150 ${active(link.href)
                   ? 'text-accent bg-accent-light font-semibold'
                   : 'text-muted hover:text-main hover:bg-subtle'
-              }`}
+                }`}
             >
               {link.label}
             </Link>
@@ -80,8 +78,9 @@ export function Navbar() {
           <ThemeToggle />
           <button
             onClick={() => setOpen(!open)}
-            className="p-1.5 rounded-lg text-muted hover:text-main transition-colors"
-            aria-label="Toggle menu"
+            className="p-2 min-h-[44px] min-w-[44px] rounded-lg text-muted hover:text-main transition-colors flex items-center justify-center cursor-pointer"
+            aria-label={open ? 'Close navigation menu' : 'Open navigation menu'}
+            aria-expanded={open}
           >
             {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
@@ -89,17 +88,16 @@ export function Navbar() {
       </div>
 
       {open && (
-        <div className="md:hidden px-6 py-4 flex flex-col gap-1 border-t border-theme bg-card animate-fade-up">
+        <nav aria-label="Mobile navigation" className="md:hidden px-6 py-4 flex flex-col gap-1 border-t border-theme bg-card animate-fade-up">
           {links.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               onClick={() => setOpen(false)}
-              className={`px-4 py-2.5 text-sm font-medium rounded-lg transition-colors ${
-                active(link.href)
+              className={`px-4 py-2.5 text-sm font-medium rounded-lg transition-colors min-h-[44px] flex items-center ${active(link.href)
                   ? 'text-accent bg-accent-light'
                   : 'text-muted hover:text-main hover:bg-subtle'
-              }`}
+                }`}
             >
               {link.label}
             </Link>
@@ -108,13 +106,13 @@ export function Navbar() {
             <Link
               href="/generate"
               onClick={() => setOpen(false)}
-              className="btn-primary w-full justify-center"
+              className="btn-primary w-full justify-center min-h-[44px] flex items-center"
               style={{ fontSize: '14px' }}
             >
               Create Prompt
             </Link>
           </div>
-        </div>
+        </nav>
       )}
     </header>
   );

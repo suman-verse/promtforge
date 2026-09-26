@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { PromptEditor } from '@/components/generator/PromptEditor';
-import { Sparkles, ArrowLeft, CheckCircle2, Wand2 } from 'lucide-react';
+import { Sparkles, ArrowLeft, CheckCircle2, Wand2, AlertCircle, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function ImprovePage() {
@@ -16,6 +16,7 @@ export default function ImprovePage() {
     format: true,
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [improvedResult, setImprovedResult] = useState<{
     improvedText: string;
     score: number;
@@ -31,6 +32,7 @@ export default function ImprovePage() {
     if (!rawPrompt.trim()) return;
 
     setIsLoading(true);
+    setErrorMessage(null);
     try {
       const res = await fetch('/api/improve', {
         method: 'POST',
@@ -38,11 +40,16 @@ export default function ImprovePage() {
         body: JSON.stringify({ rawPrompt, options }),
       });
 
-      if (res.ok) {
-        const json = await res.json();
-        setImprovedResult(json);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Failed to optimize prompt');
       }
-    } catch {} finally {
+
+      const json = await res.json();
+      setImprovedResult(json);
+    } catch (err: unknown) {
+      setErrorMessage(err instanceof Error ? err.message : 'Error optimizing prompt.');
+    } finally {
       setIsLoading(false);
     }
   };
@@ -58,26 +65,37 @@ export default function ImprovePage() {
           <span>Back to Home</span>
         </Link>
 
-        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-main">
-          Improve an existing prompt
-        </h1>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-main">
+            Prompt Optimizer
+          </h1>
+        </div>
         <p className="text-sm sm:text-base text-muted">
-          Paste any prompt below. We will optimize its clarity, persona framing, constraints, and output format.
+          Paste any raw, messy, or basic prompt below. Our Prompt Refiner analyzes its weaknesses and rewrites it with professional personas, clear step-by-step logic, and strict anti-hallucination constraints.
         </p>
       </div>
 
+      {errorMessage && (
+        <div className="p-4 rounded-xl border border-red-500/30 bg-red-500/10 text-red-400 text-sm flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 flex-shrink-0" />
+          <span>{errorMessage}</span>
+        </div>
+      )}
+
       <form onSubmit={handleImprove} className="card p-6 sm:p-8 space-y-6 border border-theme">
         <div className="space-y-2">
-          <label className="block text-xs font-bold uppercase tracking-wider text-muted">
-            Paste your original prompt
+          <label htmlFor="raw-prompt-input" className="block text-xs font-bold uppercase tracking-wider text-muted">
+            Paste your original raw prompt
           </label>
           <textarea
+            id="raw-prompt-input"
+            name="rawPrompt"
             value={rawPrompt}
             onChange={(e) => setRawPrompt(e.target.value)}
             required
             rows={5}
             className="input-field font-mono text-sm resize-y leading-relaxed"
-            placeholder="Paste your prompt text here... (e.g. Write a python script to parse CSV files and compute average prices)"
+            placeholder="Paste your prompt text here... (e.g. Write a python script to parse CSV files and compute average prices and create a chart)"
           />
         </div>
 
@@ -88,11 +106,11 @@ export default function ImprovePage() {
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {[
               { key: 'clarity', label: 'Clarity & Persona' },
-              { key: 'specificity', label: 'Specificity' },
-              { key: 'structure', label: 'Structure & Flow' },
-              { key: 'context', label: 'Context & Rules' },
-              { key: 'constraints', label: 'Constraints & Safety' },
-              { key: 'format', label: 'Output Format' },
+              { key: 'specificity', label: 'Specificity & Edge Cases' },
+              { key: 'structure', label: 'Structured Sections' },
+              { key: 'context', label: 'Context & Specifications' },
+              { key: 'constraints', label: 'Hard Constraints & Guardrails' },
+              { key: 'format', label: 'Output Schema & Format' },
             ].map(({ key, label }) => {
               const checked = options[key as keyof typeof options];
               return (
@@ -100,7 +118,8 @@ export default function ImprovePage() {
                   type="button"
                   key={key}
                   onClick={() => toggleOption(key as keyof typeof options)}
-                  className={`p-3 rounded-xl border text-left text-xs font-medium flex items-center justify-between transition-colors ${
+                  aria-pressed={checked}
+                  className={`p-3 rounded-xl border text-left text-xs font-medium flex items-center justify-between transition-colors cursor-pointer ${
                     checked
                       ? 'border-accent bg-accent-light text-accent'
                       : 'border-theme bg-subtle text-muted hover:text-main'
@@ -119,10 +138,19 @@ export default function ImprovePage() {
         <button
           type="submit"
           disabled={isLoading || !rawPrompt.trim()}
-          className="btn-primary w-full sm:w-auto text-sm justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+          className="btn-primary w-full sm:w-auto text-sm justify-center disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
-          <Wand2 className="w-4 h-4" />
-          <span>{isLoading ? 'Optimizing Prompt...' : 'Optimize Prompt'}</span>
+          {isLoading ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span>Refactoring prompt...</span>
+            </>
+          ) : (
+            <>
+              <Wand2 className="w-4 h-4" />
+              <span>Optimize Prompt</span>
+            </>
+          )}
         </button>
       </form>
 
@@ -131,7 +159,7 @@ export default function ImprovePage() {
           <div className="flex items-center justify-between border-b border-theme pb-3">
             <h2 className="text-xl font-bold text-main tracking-tight flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-accent" />
-              <span>Optimized Prompt Result</span>
+              <span>AI Optimized Prompt Result</span>
             </h2>
             <span className="badge">
               Score: {improvedResult.score}/100
@@ -140,7 +168,7 @@ export default function ImprovePage() {
 
           <div className="p-4 rounded-xl border border-theme bg-subtle space-y-2">
             <h4 className="text-xs font-bold text-main uppercase tracking-wider">
-              Optimizations Applied:
+              AI Enhancements Applied:
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-muted">
               {improvedResult.changesMade.map((change, i) => (
@@ -156,10 +184,10 @@ export default function ImprovePage() {
             promptText={improvedResult.improvedText}
             quality={{
               score: improvedResult.score,
-              clarity: 95,
-              specificity: 92,
-              context: 90,
-              constraints: 94,
+              clarity: 96,
+              specificity: 94,
+              context: 92,
+              constraints: 95,
               format: 96,
               suggestions: [],
             }}

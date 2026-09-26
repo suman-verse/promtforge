@@ -32,13 +32,13 @@ export function generateStructuredPrompt(input: PromptGeneratorInput): Generated
   const {
     category = 'general',
     goal,
-    model = 'ChatGPT / General AI',
+    model = 'Frontier LLM',
     role,
     context,
     constraints,
     outputFormat,
     tone,
-    complexity,
+    complexity = 'Senior Staff / Principal Level',
     customFields = {},
   } = input;
 
@@ -48,43 +48,47 @@ export function generateStructuredPrompt(input: PromptGeneratorInput): Generated
   if (!assignedRole) {
     switch (category) {
       case 'coding':
-        assignedRole = `Principal Software Engineer and System Architect`;
+        assignedRole = `Principal Distributed Systems Architect, Security Auditor, and Staff Software Engineer`;
         break;
       case 'studying':
-        assignedRole = `Socratic Academic Tutor and Cognitive Learning Specialist`;
+        assignedRole = `Distinguished Cognitive Learning Specialist, Socratic Mentor, and Academic Tutor`;
         break;
       case 'writing':
-        assignedRole = `Senior Technical Writer and Editorial Specialist`;
+        assignedRole = `Executive Editorial Strategist, Award-Winning Copy Director, and Technical Author`;
         break;
       case 'research':
-        assignedRole = `Principal Research Analyst and Literature Synthesizer`;
+        assignedRole = `Principal Research Scientist, Empirical Synthesizer, and Methodological Analyst`;
         break;
       case 'business':
-        assignedRole = `Senior Management Consultant and Business Strategist`;
+        assignedRole = `Senior Management Consultant, Strategy Partner, and Operational Architect`;
         break;
       case 'marketing':
-        assignedRole = `Lead Conversion Copywriter and Growth Marketer`;
+        assignedRole = `Head of Growth Marketing, Conversion Rate Strategist, and Direct-Response Copy Director`;
         break;
       case 'career':
-        assignedRole = `Executive Career Coach and Talent Acquisition Strategist`;
+        assignedRole = `Executive Talent Partner, Leadership Coach, and Senior Technical Interviewer`;
         break;
       default:
-        assignedRole = `Expert Domain Specialist`;
+        assignedRole = `Elite Domain Specialist and Principal Systems Advisor`;
     }
   }
 
-  sections.push(`ROLE:\nYou are an experienced ${assignedRole}.`);
+  // 1. Role Section
+  sections.push(`ROLE & PERSONA:\nYou are an experienced ${assignedRole}. Your responses represent senior-staff expertise, uncompromising rigor, and clear, actionable precision.`);
+
+  // 2. Objective Section
   sections.push(`OBJECTIVE:\n${goal.trim()}`);
 
+  // 3. Context & Parameters
   const contextParts: string[] = [];
   if (context && context.trim()) {
     contextParts.push(context.trim());
   }
   if (model) {
-    contextParts.push(`Target Engine: ${model}`);
+    contextParts.push(`Target AI Engine: ${model}`);
   }
   if (complexity) {
-    contextParts.push(`Target Complexity Level: ${complexity}`);
+    contextParts.push(`Complexity & Depth Standard: ${complexity}`);
   }
   if (tone) {
     contextParts.push(`Communication Tone: ${tone}`);
@@ -100,37 +104,45 @@ export function generateStructuredPrompt(input: PromptGeneratorInput): Generated
     sections.push(`CONTEXT & SPECIFICATIONS:\n- ${contextParts.join('\n- ')}`);
   }
 
+  // 4. Execution Directives
   const reqs: string[] = [];
+  reqs.push('Systematically analyze edge cases, architectural trade-offs, and failure modes before concluding.');
   if (category === 'coding') {
-    reqs.push('Write clean, idiomatic code adhering to best industry standards.');
-    reqs.push('Avoid unrequested abstractions or third-party package dependencies.');
-    reqs.push('Provide exact code blocks with syntax highlighting.');
-    reqs.push('Explain the underlying architecture and key decisions concisely.');
+    reqs.push('Write production-grade, idiomatic, fully-typed code adhering strictly to best practices.');
+    reqs.push('Zero placeholders: Provide complete, unabridged, copy-pasteable implementations (no // TODO or truncated functions).');
+    reqs.push('Address memory efficiency, computational complexity, security vulnerabilities, and error handling.');
+    reqs.push('Include runnable unit tests or verification assertions covering normal and edge cases.');
   } else if (category === 'studying') {
-    reqs.push('Break down complex concepts into intuitive mental models.');
-    reqs.push('Use practical analogies to anchor difficult topics.');
-    reqs.push('Include 2-3 interactive comprehension check questions.');
+    reqs.push('Deconstruct abstract concepts into intuitive first-principles mental models.');
+    reqs.push('Anchor difficult mechanics with concrete, relatable real-world analogies.');
+    reqs.push('Include 2-3 interactive comprehension verification questions.');
   } else if (category === 'writing') {
-    reqs.push('Ensure strong visual hierarchy with clear headings and bullet points.');
-    reqs.push('Eliminate passive voice, fluff, and unnecessary filler words.');
-    reqs.push('Tailor vocabulary precisely to the target audience.');
+    reqs.push('Establish strong visual hierarchy with punchy headings, clear bullet arguments, and active voice.');
+    reqs.push('Eliminate passive voice, fluff, buzzwords, and redundant filler.');
+    reqs.push('Maintain strict tone calibration suited for high-impact readers.');
   } else {
-    reqs.push('Structure your response logically with clear section headers.');
-    reqs.push('Highlight actionable insights and key takeaways upfront.');
+    reqs.push('Structure your reasoning logically with clear section headers.');
+    reqs.push('Deliver actionable conclusions, metrics, and implementation steps upfront.');
   }
 
-  sections.push(`REQUIREMENTS:\n1. ${reqs.join('\n2. ')}`);
+  sections.push(`REQUIREMENTS & EXECUTION PROTOCOL:\n1. ${reqs.join('\n2. ')}`);
 
+  // 5. Hard Negative Constraints
   const constraintsList: string[] = [];
   if (constraints && constraints.trim()) {
     constraintsList.push(constraints.trim());
   }
-  constraintsList.push('Do not make unverified assumptions; if context is missing, explicitly state what is assumed.');
-  constraintsList.push('Avoid conversational filler, greetings, or self-referential pleasantries.');
+  constraintsList.push('Zero conversational filler, self-referential introductory pleasantries ("Sure, I can help!"), or hedging.');
+  constraintsList.push('Never invent unverified facts; if required context is missing, explicitly state assumptions upfront.');
+  constraintsList.push('Do not truncate code blocks or omit logic with ellipsis (...) or placeholder comments.');
 
-  sections.push(`CONSTRAINTS:\n- ${constraintsList.join('\n- ')}`);
+  sections.push(`CONSTRAINTS & GUARDRAILS:\n- ${constraintsList.join('\n- ')}`);
 
-  const finalFormat = outputFormat || (category === 'coding' ? 'Markdown with clean TypeScript/Code blocks' : 'Structured Markdown with headers and bullet points');
+  // 6. Output Format
+  const finalFormat = outputFormat || (category === 'coding'
+    ? '1. Architecture Summary & Key Decisions\n2. Complete Production-Ready Code Blocks (Fully Typed)\n3. Edge Cases, Security & Verification Test Suite'
+    : '1. Executive Summary & Direct Answer\n2. Detailed Step-by-Step Breakdown\n3. Critical Nuances, Trade-Offs & Action Checklist');
+
   sections.push(`OUTPUT FORMAT:\n${finalFormat}`);
 
   const promptText = sections.join('\n\n');
@@ -158,11 +170,11 @@ export function evaluatePromptQuality(
   const goalLength = goal.trim().length;
   const wordCount = fullPrompt.trim().split(/\s+/).length;
 
-  const clarity = Math.min(100, Math.max(50, goalLength > 15 ? 90 : goalLength * 5));
-  const specificity = Math.min(100, Math.max(40, wordCount > 40 ? 92 : wordCount * 2));
-  const contextScore = flags?.hasContext ? 95 : (fullPrompt.includes('CONTEXT') ? 88 : 65);
-  const constraintScore = flags?.hasConstraints ? 96 : (fullPrompt.includes('CONSTRAINTS') ? 90 : 70);
-  const formatScore = flags?.hasFormat ? 98 : (fullPrompt.includes('OUTPUT FORMAT') ? 94 : 75);
+  const clarity = Math.min(100, Math.max(70, goalLength > 15 ? 96 : 80));
+  const specificity = Math.min(100, Math.max(65, wordCount > 40 ? 95 : 75));
+  const contextScore = flags?.hasContext ? 96 : (fullPrompt.includes('CONTEXT') ? 92 : 80);
+  const constraintScore = flags?.hasConstraints ? 98 : (fullPrompt.includes('CONSTRAINTS') ? 95 : 82);
+  const formatScore = flags?.hasFormat ? 98 : (fullPrompt.includes('OUTPUT FORMAT') ? 96 : 85);
 
   const overall = Math.round(
     clarity * 0.2 +
@@ -174,16 +186,16 @@ export function evaluatePromptQuality(
 
   const suggestions: string[] = [];
   if (goalLength < 25) {
-    suggestions.push('Add more details to your goal to increase prompt specificity.');
+    suggestions.push('Add specific technical dependencies or target criteria to maximize specificity.');
   }
   if (!flags?.hasContext && !fullPrompt.includes('CONTEXT')) {
-    suggestions.push('Specify target audience, tools, or domain background for higher context scores.');
+    suggestions.push('Specify target environment, frameworks, or domain assumptions.');
   }
   if (!flags?.hasConstraints && !fullPrompt.includes('CONSTRAINTS')) {
-    suggestions.push('Include strict constraints (e.g. max word limit, language rules) to prevent off-target responses.');
+    suggestions.push('Include strict negative constraints to prevent hallucination and laziness.');
   }
   if (!flags?.hasFormat) {
-    suggestions.push('Explicitly request your desired output format (Markdown table, JSON, step-by-step code).');
+    suggestions.push('Explicitly request desired output schemas (Markdown, JSON, Code).');
   }
 
   return {
@@ -209,39 +221,44 @@ export function improveUserPrompt(
   }
 ): { improvedText: string; score: number; changesMade: string[] } {
   const changes: string[] = [];
-  let role = 'Domain Expert';
+  let role = 'Principal Domain Architect and Staff Specialist';
 
-  if (/code|react|javascript|python|api|bug|database/i.test(rawPrompt)) {
-    role = 'Senior Software Engineer';
-  } else if (/study|learn|exam|explain|tutor/i.test(rawPrompt)) {
-    role = 'Academic Specialist and Tutor';
-  } else if (/write|blog|essay|article|email/i.test(rawPrompt)) {
-    role = 'Professional Editor & Copywriter';
+  if (/code|react|javascript|typescript|python|api|bug|database|sql|docker|k8s/i.test(rawPrompt)) {
+    role = 'Principal Software Engineer & Distributed Systems Architect';
+  } else if (/study|learn|exam|explain|tutor|math|physics|biology/i.test(rawPrompt)) {
+    role = 'Distinguished Academic Specialist & Socratic Cognitive Tutor';
+  } else if (/write|blog|essay|article|email|copy|headline/i.test(rawPrompt)) {
+    role = 'Executive Technical Editor & Lead Conversion Copy Strategist';
   }
 
   const improvedSections: string[] = [];
 
-  improvedSections.push(`ROLE:\nYou are a highly skilled ${role}.`);
+  improvedSections.push(`ROLE & PERSONA:\nYou are an experienced ${role}. You provide authoritative, exhaustive, and rigorously verified solutions.`);
   improvedSections.push(`OBJECTIVE:\n${rawPrompt.trim()}`);
-  changes.push('Assigned explicit professional persona and role');
+  changes.push('Assigned calibrated senior-staff persona');
 
   if (options.context || !rawPrompt.toLowerCase().includes('context')) {
-    improvedSections.push(`CONTEXT & SPECIFICATIONS:\n- Provide comprehensive background where necessary.\n- Ensure solution is practical, scalable, and modern.`);
-    changes.push('Added structured context section');
+    improvedSections.push(`CONTEXT & SPECIFICATIONS:\n- Target: Production-ready standard with high scalability and maintainability.\n- Assumptions: State all implicit assumptions upfront before implementation.`);
+    changes.push('Injected structured operational context');
+  }
+
+  if (options.structure || options.specificity) {
+    improvedSections.push(`EXECUTION PROTOCOL:\n1. Deconstruct the problem and reason through edge cases and failure modes.\n2. Provide complete, unabridged solutions without placeholders.\n3. Validate results with explicit test cases or verification steps.`);
+    changes.push('Injected step-by-step execution protocol');
   }
 
   if (options.constraints || options.specificity) {
-    improvedSections.push(`CONSTRAINTS:\n- State any assumptions explicitly upfront.\n- Avoid unnecessary conversational fluff or vague generalizations.\n- Focus on actionable, accurate results.`);
-    changes.push('Injected strict constraints to eliminate filler responses');
+    improvedSections.push(`CONSTRAINTS & GUARDRAILS:\n- Zero placeholders: Do not use // TODO, // implement here, or truncation (...).\n- Zero conversational filler, hedging, or self-referential pleasantries.\n- Guarantee robust error handling and adherence to industry best practices.`);
+    changes.push('Enforced strict anti-placeholder and anti-hallucination guardrails');
   }
 
   if (options.format || options.structure) {
-    improvedSections.push(`OUTPUT FORMAT:\n1. Executive Summary / Direct Answer\n2. Detailed Step-by-Step Breakdown\n3. Key Considerations & Tradeoffs`);
-    changes.push('Standardized clear output format');
+    improvedSections.push(`OUTPUT FORMAT:\n1. Executive Summary & Architectural Overview\n2. Complete Implementation (Unabridged Code / Content)\n3. Edge Cases, Verification Proofs & Trade-Off Analysis`);
+    changes.push('Standardized 3-tier deterministic output contract');
   }
 
   const improvedText = improvedSections.join('\n\n');
-  const score = Math.min(98, 70 + changes.length * 7);
+  const score = Math.min(99, 85 + changes.length * 3);
 
   return {
     improvedText,

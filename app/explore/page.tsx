@@ -40,6 +40,8 @@ export default function ExplorePage() {
           </div>
           <input
             type="text"
+            name="q"
+            aria-label="Search prompts by title, keyword, or workflow"
             value={searchQuery}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
             placeholder="Search prompts by title, keyword, or workflow..."

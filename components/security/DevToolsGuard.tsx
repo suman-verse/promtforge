@@ -21,18 +21,18 @@ export function DevToolsGuard() {
 
       const isCtrlOrCmd = e.ctrlKey || e.metaKey;
 
-      if (isCtrlOrCmd) {
-        if (e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) {
+      if (isCtrlOrCmd && e.shiftKey) {
+        // Block Ctrl+Shift+I (DevTools), Ctrl+Shift+J (Console), Ctrl+Shift+C (Inspector)
+        if (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c') {
           e.preventDefault();
           e.stopPropagation();
           return false;
         }
+      }
+
+      if (isCtrlOrCmd && !e.shiftKey) {
+        // Block Ctrl+U (View Source)
         if (e.key === 'U' || e.key === 'u') {
-          e.preventDefault();
-          e.stopPropagation();
-          return false;
-        }
-        if (e.key === 'S' || e.key === 's') {
           e.preventDefault();
           e.stopPropagation();
           return false;

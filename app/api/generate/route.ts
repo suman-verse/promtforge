@@ -1,10 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateStructuredPrompt } from '@/lib/ai/promptEngine';
+import { generateAIPrompt } from '@/lib/ai/openrouter';
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { category, goal, model, role, context, constraints, outputFormat, tone, complexity, customFields } = body;
+    const {
+      category,
+      goal,
+      model,
+      role,
+      context,
+      constraints,
+      outputFormat,
+      tone,
+      complexity,
+      customFields,
+    } = body;
 
     if (!goal || typeof goal !== 'string' || !goal.trim()) {
       return NextResponse.json(
@@ -13,7 +24,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const result = generateStructuredPrompt({
+    const result = await generateAIPrompt({
       category: category || 'general',
       goal,
       model,
@@ -28,9 +39,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(result, { status: 200 });
   } catch (error: unknown) {
-    console.error('Prompt Generation Error:', error);
+    console.error('Prompt Generation API Error:', error);
     return NextResponse.json(
-      { error: 'Failed to generate prompt. Please check input.' },
+      { error: 'Failed to generate prompt. Please try again.' },
       { status: 500 }
     );
   }

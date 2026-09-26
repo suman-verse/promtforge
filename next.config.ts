@@ -36,7 +36,7 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        source: '/(sitemap\\.xml|robots\\.txt)',
+        source: '/(sitemap\\.xml|robots\\.txt|llms\\.txt|llms-full\\.txt|manifest\\.webmanifest)',
         headers: [
           {
             key: 'Cache-Control',

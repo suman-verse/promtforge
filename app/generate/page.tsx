@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { SmartConfigForm } from '@/components/generator/SmartConfigForm';
 import { PromptEditor } from '@/components/generator/PromptEditor';
 import { GeneratedPromptResult, PromptGeneratorInput } from '@/lib/ai/promptEngine';
-import { Sparkles, ArrowLeft } from 'lucide-react';
+import { Sparkles, ArrowLeft, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 
 function GeneratorContent() {
@@ -13,11 +13,14 @@ function GeneratorContent() {
   const initialCategory = searchParams.get('category') || undefined;
 
   const [isLoading, setIsLoading] = useState(false);
+  const [isModifying, setIsModifying] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [result, setResult] = useState<GeneratedPromptResult | null>(null);
   const [currentInput, setCurrentInput] = useState<PromptGeneratorInput | null>(null);
 
   const handleGenerate = async (data: PromptGeneratorInput) => {
     setIsLoading(true);
+    setErrorMessage(null);
     setCurrentInput(data);
     try {
       const res = await fetch('/api/generate', {
@@ -25,31 +28,65 @@ function GeneratorContent() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
-      if (!res.ok) throw new Error('API request failed');
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(errJson.error || 'Failed to generate prompt');
+      }
       const json: GeneratedPromptResult = await res.json();
       setResult(json);
       setTimeout(() => {
         document.getElementById('prompt-result-section')?.scrollIntoView({ behavior: 'smooth' });
       }, 100);
-    } catch {} finally {
+    } catch (err: unknown) {
+      setErrorMessage(err instanceof Error ? err.message : 'Error generating prompt. Please try again.');
+    } finally {
       setIsLoading(false);
     }
   };
 
-  const handleModify = (mode: 'shorten' | 'expand' | 'beginner' | 'expert') => {
-    if (!result || !currentInput) return;
-    let modifiedGoal = currentInput.goal;
-    let modifiedComplexity = currentInput.complexity;
-    if (mode === 'shorten') modifiedGoal = `Short concise request: ${currentInput.goal}`;
-    else if (mode === 'expand') modifiedGoal = `Comprehensive in-depth request: ${currentInput.goal}. Provide exhaustive edge case analysis and complete implementations.`;
-    else if (mode === 'beginner') modifiedComplexity = 'Beginner / Step-by-step tutorial level';
-    else if (mode === 'expert') modifiedComplexity = 'Principal / Senior Staff Architecture level';
-    handleGenerate({ ...currentInput, goal: modifiedGoal, complexity: modifiedComplexity });
+  const handleModify = async (mode: 'shorten' | 'expand' | 'beginner' | 'expert') => {
+    if (!result) return;
+    setIsModifying(true);
+    setErrorMessage(null);
+    try {
+      const res = await fetch('/api/modify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          promptText: result.promptText,
+          mode,
+        }),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        setResult({
+          ...result,
+          promptText: json.modifiedText,
+          quality: json.quality || result.quality,
+        });
+      } else {
+        throw new Error('AI modification failed');
+      }
+    } catch {
+      // Fallback modification
+      if (currentInput) {
+        let modifiedGoal = currentInput.goal;
+        let modifiedComplexity = currentInput.complexity;
+        if (mode === 'shorten') modifiedGoal = `Concise version: ${currentInput.goal}`;
+        else if (mode === 'expand') modifiedGoal = `Exhaustive comprehensive version: ${currentInput.goal}`;
+        else if (mode === 'beginner') modifiedComplexity = 'Beginner / First-principles explanation';
+        else if (mode === 'expert') modifiedComplexity = 'Principal / Senior Staff Architecture level';
+        handleGenerate({ ...currentInput, goal: modifiedGoal, complexity: modifiedComplexity });
+      }
+    } finally {
+      setIsModifying(false);
+    }
   };
 
   const handleImprove = async () => {
     if (!result) return;
-    setIsLoading(true);
+    setIsModifying(true);
+    setErrorMessage(null);
     try {
       const res = await fetch('/api/improve', {
         method: 'POST',
@@ -67,8 +104,10 @@ function GeneratorContent() {
           quality: { ...result.quality, score: Math.max(result.quality.score, json.score) },
         });
       }
-    } catch {} finally {
-      setIsLoading(false);
+    } catch {
+      setErrorMessage('Failed to polish prompt with AI.');
+    } finally {
+      setIsModifying(false);
     }
   };
 
@@ -83,15 +122,24 @@ function GeneratorContent() {
           <ArrowLeft className="w-3.5 h-3.5" />
           Home
         </Link>
-        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-main">
-          What do you want to accomplish?
-        </h1>
-        <p className="text-base" style={{ color: 'var(--text-muted)' }}>
-          Describe your goal. We&apos;ll structure it into a clear, high-scoring AI prompt.
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-main">
+            Prompt Generator
+          </h1>
+        </div>
+        <p className="text-sm text-muted">
+          Describe what you want to achieve. We engineer a structured, high-precision prompt ready for any AI model.
         </p>
       </div>
 
-      <div className="card p-8">
+      {errorMessage && (
+        <div className="p-4 rounded-xl border border-red-500/30 bg-red-500/10 text-red-400 text-sm flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 flex-shrink-0" />
+          <span>{errorMessage}</span>
+        </div>
+      )}
+
+      <div className="card p-5 sm:p-6 shadow-md border border-theme bg-card">
         <SmartConfigForm
           onGenerate={handleGenerate}
           isLoading={isLoading}
@@ -107,10 +155,10 @@ function GeneratorContent() {
               Engineered Prompt Result
             </h2>
             <span
-              className="text-xs font-mono px-2.5 py-1 rounded-md"
+              className="text-xs font-mono px-2.5 py-1 rounded-md border border-theme"
               style={{ background: 'var(--bg-subtle)', color: 'var(--text-muted)' }}
             >
-              {result.model}
+              Engine: {result.model}
             </span>
           </div>
           <PromptEditor
@@ -120,6 +168,7 @@ function GeneratorContent() {
             onRegenerate={() => currentInput && handleGenerate(currentInput)}
             onImprove={handleImprove}
             onModify={handleModify}
+            isModifying={isModifying}
           />
         </div>
       )}
@@ -131,7 +180,7 @@ export default function GeneratePage() {
   return (
     <Suspense fallback={
       <div className="max-w-4xl mx-auto px-6 py-16 text-center" style={{ color: 'var(--text-muted)' }}>
-        Loading generator...
+        Loading AI generator...
       </div>
     }>
       <GeneratorContent />

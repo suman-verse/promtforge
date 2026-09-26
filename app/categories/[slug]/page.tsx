@@ -11,6 +11,10 @@ interface CategoryPageProps {
   params: Promise<{ slug: string }>;
 }
 
+export async function generateStaticParams() {
+  return CATEGORIES.map((c) => ({ slug: c.slug }));
+}
+
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
   const resolvedParams = await params;
   const category = CATEGORIES.find((c) => c.slug === resolvedParams.slug);
@@ -19,9 +23,50 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
     return { title: 'Category Not Found — PromptForge' };
   }
 
+  const url = `https://promptforge.vercel.app/categories/${category.slug}`;
+
   return {
-    title: `${category.name} AI Prompts — PromptForge`,
+    title: `${category.name} AI Prompts & Engineering Templates — PromptForge`,
     description: category.description,
+    keywords: [
+      `${category.name} AI prompts`,
+      `${category.name} prompt templates`,
+      'prompt engineering',
+      'ChatGPT prompts',
+      'Claude prompts',
+      'PromptForge',
+    ],
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      title: `${category.name} AI Prompts — PromptForge`,
+      description: category.description,
+      url,
+      siteName: 'PromptForge',
+      locale: 'en_US',
+      type: 'website',
+      images: [
+        {
+          url: '/og-image.png',
+          width: 1200,
+          height: 630,
+          alt: `${category.name} AI Prompts on PromptForge`,
+          type: 'image/png',
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${category.name} AI Prompts — PromptForge`,
+      description: category.description,
+      images: ['/og-image.png'],
+      creator: '@sumanverse',
+    },
+    robots: {
+      index: true,
+      follow: true,
+    },
   };
 }
 
@@ -35,9 +80,39 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
   const categoryTemplates = PROMPT_TEMPLATES.filter((t) => t.categorySlug === category.slug);
 
+  const breadcrumbsJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: 'https://promptforge.vercel.app',
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Categories',
+        item: 'https://promptforge.vercel.app/explore',
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: category.name,
+        item: `https://promptforge.vercel.app/categories/${category.slug}`,
+      },
+    ],
+  };
+
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-10">
-      <div className="space-y-3 max-w-2xl">
+    <article className="max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsJsonLd) }}
+      />
+
+      <header className="space-y-3 max-w-2xl">
         <Link
           href="/explore"
           className="inline-flex items-center gap-1.5 text-xs text-muted hover:text-main transition-colors"
@@ -62,9 +137,9 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
             <span>Generate Custom {category.name} Prompt</span>
           </Link>
         </div>
-      </div>
+      </header>
 
-      <div className="space-y-4">
+      <section aria-label={`${category.name} prompts list`} className="space-y-4">
         <h2 className="text-xl font-bold text-main tracking-tight">
           Curated {category.name} Prompts ({categoryTemplates.length})
         </h2>
@@ -89,7 +164,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
             </Link>
           </div>
         )}
-      </div>
-    </div>
+      </section>
+    </article>
   );
 }

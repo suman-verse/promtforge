@@ -4,16 +4,49 @@ import Image from 'next/image';
 import { Sparkles, ExternalLink, Globe, Shield, Terminal, Zap, BookOpen, Layers, CheckCircle2 } from 'lucide-react';
 import type { Metadata } from 'next';
 
+const URL = 'https://promptforge.vercel.app/about';
+
 export const metadata: Metadata = {
   title: 'About PromptForge — Prompt Engineering Philosophy & Creator',
   description:
-    'Learn about PromptForge — built by Suman Verse. Discover why structured AI prompts outperform vague requests and how PromptForge turns ideas into high-scoring AI instructions.',
-  alternates: { canonical: 'https://promptforge.vercel.app/about' },
+    'Learn about PromptForge — engineered by Suman Verse. Discover why structured AI prompts outperform vague requests and how PromptForge turns ideas into high-scoring AI instructions.',
+  keywords: [
+    'about PromptForge',
+    'Suman Verse',
+    'prompt engineering philosophy',
+    'structured prompts methodology',
+    'AI prompt quality standards',
+    'AI prompt architecture',
+  ],
+  alternates: { canonical: URL },
   openGraph: {
     title: 'About PromptForge — Prompt Engineering Philosophy',
     description:
       'Discover the philosophy behind PromptForge and why structured AI prompts produce dramatically better results.',
-    url: 'https://promptforge.vercel.app/about',
+    url: URL,
+    siteName: 'PromptForge',
+    locale: 'en_US',
+    type: 'website',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'About PromptForge & Suman Verse',
+        type: 'image/png',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'About PromptForge — Prompt Engineering Philosophy',
+    description: 'The philosophy and architecture behind PromptForge, built by Suman Verse.',
+    images: ['/og-image.png'],
+    creator: '@sumanverse',
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 };
 
@@ -121,9 +154,6 @@ export default function AboutPage() {
           </div>
 
           <div className="space-y-3 text-center sm:text-left flex-1">
-            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-md bg-accent-light border border-accent/20 text-accent text-[11px] font-mono font-semibold uppercase tracking-wider">
-              Creator &amp; Developer
-            </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-main tracking-tight">
               Made by <span className="text-accent">Suman Verse</span>
             </h2>
@@ -145,14 +175,6 @@ export default function AboutPage() {
                 <Globe className="w-3.5 h-3.5" />
                 <span>Visit Portfolio</span>
                 <ExternalLink className="w-3 h-3 ml-0.5" />
-              </a>
-              <a
-                href="https://suman-verse.vercel.app/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-muted hover:text-accent font-mono transition-colors flex items-center gap-1"
-              >
-                <span>suman-verse.vercel.app</span>
               </a>
             </div>
           </div>

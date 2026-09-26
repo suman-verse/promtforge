@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { ThemeProvider } from '@/components/theme/ThemeProvider';
@@ -20,6 +20,16 @@ const jetbrainsMono = JetBrains_Mono({
 
 const BASE_URL = 'https://promptforge.vercel.app';
 
+export const viewport: Viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#090a0f' },
+  ],
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
 
@@ -29,7 +39,7 @@ export const metadata: Metadata = {
   },
 
   description:
-    'Create structured, high-quality AI prompts for ChatGPT, Claude, Gemini, and Midjourney. Free, offline-ready prompt engineering tool for coding, writing, research, and image generation.',
+    'Create structured, production-ready AI prompts for ChatGPT, Claude, Gemini, DeepSeek, and Midjourney. Precision prompt engineering tool for coding, writing, research, and technical workflows.',
 
   keywords: [
     'AI prompt generator',
@@ -37,6 +47,7 @@ export const metadata: Metadata = {
     'ChatGPT prompts',
     'Claude prompts',
     'Gemini prompts',
+    'DeepSeek prompts',
     'Midjourney prompts',
     'AI prompts for coding',
     'AI writing prompts',
@@ -46,6 +57,7 @@ export const metadata: Metadata = {
     'structured prompts',
     'prompt template',
     'AI productivity tool',
+    'prompt scoring',
   ],
 
   authors: [
@@ -71,11 +83,14 @@ export const metadata: Metadata = {
 
   icons: {
     icon: [
-      { url: '/promptforge-logo.png', type: 'image/png' },
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon.png', type: 'image/png' },
     ],
-    shortcut: '/promptforge-logo.png',
-    apple: '/promptforge-logo.png',
+    shortcut: '/favicon.ico',
+    apple: '/apple-icon.png',
   },
+
+  manifest: '/manifest.webmanifest',
 
   openGraph: {
     type: 'website',
@@ -84,7 +99,7 @@ export const metadata: Metadata = {
     siteName: 'PromptForge',
     title: 'PromptForge — AI Prompt Generator & Engineering Tool',
     description:
-      'Create structured, high-quality AI prompts for ChatGPT, Claude, Gemini, and Midjourney. Free & offline.',
+      'Create structured, high-quality AI prompts for ChatGPT, Claude, Gemini, DeepSeek, and Midjourney.',
     images: [
       {
         url: '/og-image.png',
@@ -100,7 +115,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'PromptForge — AI Prompt Generator & Engineering Tool',
     description:
-      'Create structured, high-quality AI prompts for ChatGPT, Claude, Gemini, and Midjourney. Free & offline.',
+      'Create structured, high-quality AI prompts for ChatGPT, Claude, Gemini, DeepSeek, and Midjourney.',
     images: ['/og-image.png'],
     creator: '@sumanverse',
   },
@@ -111,12 +126,8 @@ export const metadata: Metadata = {
 
   other: {
     'application-name': 'PromptForge',
-    'apple-mobile-web-app-capable': 'yes',
-    'apple-mobile-web-app-status-bar-style': 'default',
     'apple-mobile-web-app-title': 'PromptForge',
     'format-detection': 'telephone=no',
-    'mobile-web-app-capable': 'yes',
-    'theme-color': '#2563eb',
   },
 };
 
@@ -135,10 +146,16 @@ export default function RootLayout({
         name: 'PromptForge',
         description: 'AI Prompt Generator & Engineering Tool',
         inLanguage: 'en-US',
-        author: {
-          '@type': 'Person',
-          name: 'Suman Verse',
-          url: 'https://suman-verse.vercel.app/',
+        publisher: {
+          '@type': 'Organization',
+          name: 'PromptForge',
+          url: BASE_URL,
+          logo: `${BASE_URL}/promptforge-logo.png`,
+          founder: {
+            '@type': 'Person',
+            name: 'Suman Verse',
+            url: 'https://suman-verse.vercel.app/',
+          },
         },
         potentialAction: {
           '@type': 'SearchAction',
@@ -150,30 +167,57 @@ export default function RootLayout({
         },
       },
       {
-        '@type': 'WebApplication',
+        '@type': 'SoftwareApplication',
         '@id': `${BASE_URL}/#app`,
         name: 'PromptForge',
         url: BASE_URL,
         description:
-          'Free AI prompt engineering tool. Generate structured prompts for ChatGPT, Claude, Gemini, and Midjourney — coding, writing, research, and image generation.',
-        applicationCategory: 'ProductivityApplication',
-        operatingSystem: 'Web',
+          'Free AI prompt engineering tool. Generate structured prompts for ChatGPT, Claude, Gemini, DeepSeek, and Midjourney — coding, writing, research, and technical workflows.',
+        applicationCategory: 'DeveloperApplication',
+        operatingSystem: 'All',
         offers: {
           '@type': 'Offer',
           price: '0',
           priceCurrency: 'USD',
         },
-        creator: {
+        author: {
           '@type': 'Person',
           name: 'Suman Verse',
           url: 'https://suman-verse.vercel.app/',
         },
         featureList: [
-          'AI Prompt Generator',
-          'Prompt Optimizer',
-          'Prompt Library',
-          'Offline-ready (no API key needed)',
-          'ChatGPT / Claude / Gemini / Midjourney support',
+          'AI Prompt Generator with multi-model targeting',
+          'Prompt Optimizer & Refiner',
+          'Searchable Prompt Library across 7 domains',
+          'Multi-model support (GPT-4o, Claude 3.5 Sonnet, Gemini 2.0, DeepSeek-R1)',
+          'Strict negative constraints & zero-placeholder enforcement',
+          '5-metric Prompt Quality Score evaluation',
+        ],
+      },
+      {
+        '@type': 'HowTo',
+        '@id': `${BASE_URL}/#howto`,
+        name: 'How to Generate Structured AI Prompts with PromptForge',
+        description: 'A 3-step method to turn vague ideas into high-scoring, production-ready AI directives.',
+        step: [
+          {
+            '@type': 'HowToStep',
+            position: 1,
+            name: 'Describe Your Goal',
+            text: 'State what you are trying to accomplish in plain conversational language.',
+          },
+          {
+            '@type': 'HowToStep',
+            position: 2,
+            name: 'Configure Constraints and Target Model',
+            text: 'Select your reasoning standard (Principal Staff, Chain-of-Thought, or Direct), target AI model, and guardrails like Zero Placeholders or Anti-Hallucination.',
+          },
+          {
+            '@type': 'HowToStep',
+            position: 3,
+            name: 'Generate and Refine',
+            text: 'Receive a quality-scored prompt formatted with Role, Objective, Context, Requirements, and Output Format, ready to copy or adjust.',
+          },
         ],
       },
     ],

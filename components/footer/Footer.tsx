@@ -22,7 +22,7 @@ export function Footer() {
             </span>
           </Link>
           <p className="text-xs sm:text-sm text-muted leading-relaxed max-w-xs">
-            A precision developer tool for structuring clear, high-scoring AI instructions. 100% client-side &amp; free.
+            A precision developer tool for structuring clear, high-scoring AI instructions. 100% free &amp; no account needed.
           </p>
           <div className="pt-1 flex items-center gap-3">
             <a
@@ -45,7 +45,6 @@ export function Footer() {
               <span className="text-muted text-[10px]">↗</span>
             </a>
           </div>
-          <p className="text-xs text-muted pt-1">© 2026 PromptForge. All rights reserved.</p>
         </div>
 
         <div>
@@ -123,6 +122,17 @@ export function Footer() {
           </ul>
         </div>
       </div>
+
+      {/* Legal footer bar */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 mt-8 pt-6 border-t border-theme flex flex-wrap items-center justify-between gap-3">
+        <p className="text-xs text-muted">© 2026 PromptForge. All rights reserved.</p>
+        <nav aria-label="Legal links" className="flex flex-wrap items-center gap-4 text-xs text-muted">
+          <Link href="/privacy" className="hover:text-accent transition-colors">Privacy Policy</Link>
+          <Link href="/terms" className="hover:text-accent transition-colors">Terms of Service</Link>
+          <Link href="/cookies" className="hover:text-accent transition-colors">Cookie Policy</Link>
+        </nav>
+      </div>
     </footer>
   );
 }
+

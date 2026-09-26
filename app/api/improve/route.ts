@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { improveUserPrompt } from '@/lib/ai/promptEngine';
+import { improveAIPrompt } from '@/lib/ai/openrouter';
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,13 +13,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const result = improveUserPrompt(rawPrompt, options || {});
+    const result = await improveAIPrompt(rawPrompt, options || {});
 
     return NextResponse.json(result, { status: 200 });
   } catch (error: unknown) {
-    console.error('Prompt Improvement Error:', error);
+    console.error('Prompt Improvement API Error:', error);
     return NextResponse.json(
-      { error: 'Failed to improve prompt.' },
+      { error: 'Failed to improve prompt. Please try again.' },
       { status: 500 }
     );
   }

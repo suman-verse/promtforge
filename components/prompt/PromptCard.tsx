@@ -54,7 +54,8 @@ export function PromptCard({ template }: PromptCardProps) {
         <div className="flex items-center gap-2">
           <button
             onClick={handleCopy}
-            className="w-7 h-7 rounded-lg border border-theme bg-subtle hover:bg-card text-muted hover:text-main flex items-center justify-center transition-all hover:scale-105"
+            aria-label={copied ? 'Prompt copied to clipboard' : `Copy ${template.title} prompt`}
+            className="w-8 h-8 rounded-lg border border-theme bg-subtle hover:bg-card text-muted hover:text-main flex items-center justify-center transition-all hover:scale-105 cursor-pointer"
             title="Copy prompt"
           >
             {copied ? (
@@ -66,7 +67,7 @@ export function PromptCard({ template }: PromptCardProps) {
 
           <Link
             href={`/prompts/${template.slug}`}
-            className="flex items-center gap-1 font-medium text-muted group-hover:text-accent transition-colors"
+            className="flex items-center gap-1 font-medium text-muted group-hover:text-accent transition-colors min-h-[32px] px-1"
           >
             <span>View</span>
             <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />

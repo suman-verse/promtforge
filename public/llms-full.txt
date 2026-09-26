@@ -1,0 +1,74 @@
+# PromptForge — Complete LLM Specification & Knowledge Base
+
+## Overview
+PromptForge is a precision prompt engineering suite designed by Suman Verse (https://suman-verse.vercel.app/).
+Website: https://promptforge.vercel.app
+Open Source & Free: Yes, no account required.
+
+---
+
+## The 5-Pillar Prompt Engineering Methodology
+
+### Pillar 1: Persona & Role Framing
+LLMs condition probability distributions based on identity tokens. Framing the model as "Principal Systems Architect" or "Distinguished Technical Editor" activates high-level domain patterns, idiomatic vocabulary, and rigorous evaluation standards.
+
+### Pillar 2: Unambiguous Objective
+Never prompt with open-ended ambiguity. State the exact transformation, output, or solution required in the first paragraph. Eliminate extraneous speculative discussion.
+
+### Pillar 3: Rich Domain Context
+Specify the runtime environment, framework versions, target audience, dependency versions, and security boundary requirements.
+
+### Pillar 4: Negative Constraints (Crucial)
+Models frequently default to conversational filler, placeholder comments (`// TODO`), and unverified claims. PromptForge automatically injects negative constraints:
+- "No conversational filler, pleasantries, or hedging."
+- "Never use placeholder comments or truncate code blocks."
+- "Never invent unverified APIs or package names."
+
+### Pillar 5: Structured Output Schema
+Forces models to structure answers into distinct, readable sections (e.g., Executive Summary, Architecture Analysis, Production Code Block, Test Suite, Edge Cases).
+
+---
+
+## Prompt Quality Scoring Rubric (100-Point Scale)
+
+Every prompt in PromptForge is evaluated on five 20-point dimensions:
+1. **Clarity (20 pts)**: Readability, lack of conflicting instructions, declarative sentence structure.
+2. **Specificity (20 pts)**: Exact libraries, protocols, algorithms, or paradigms named.
+3. **Context (20 pts)**: Sufficient background, framework assumptions, and problem boundaries provided.
+4. **Constraints (20 pts)**: Explicit negative boundaries, security guidelines, and performance ceilings.
+5. **Format Schema (20 pts)**: Definite output contract (JSON schema, markdown sections, or typed code).
+
+Score Bands:
+- 90–100: Production Grade — minimal hallucination risk, immediate operational value.
+- 80–89: Strong — solid structure, minor context gaps.
+- 70–79: Acceptable — basic intent clear, needs constraint sharpening.
+- < 70: Unstructured — high probability of hallucinations or truncated answers.
+
+---
+
+## Supported AI Models
+- OpenAI: GPT-4o, GPT-4o-mini, o1, o3-mini
+- Anthropic: Claude 3.5 Sonnet, Claude 3.7 Sonnet, Claude 3.5 Haiku
+- Google: Gemini 2.0 Flash, Gemini 1.5 Pro
+- DeepSeek: DeepSeek-R1 (Reasoning), DeepSeek-V3
+- Meta: Llama 3.3 70B Instruct
+
+---
+
+## Built-In Prompt Library Categories
+1. **Software Engineering** (`/categories/coding`): System design, unit testing, debugging, code refactoring, React/TypeScript architecture.
+2. **Education & Study** (`/categories/studying`): Socratic questioning, Feynman technique, exam roadmaps, conceptual drill-downs.
+3. **Writing & Content** (`/categories/writing`): Technical whitepapers, editorial articles, documentation, executive briefs.
+4. **Research & Analysis** (`/categories/research`): Competitive benchmarking, data synthesis, literature evaluation.
+5. **Business & Operations** (`/categories/business`): Product requirement docs (PRD), OKR frameworks, pitch architectures.
+6. **Marketing & Growth** (`/categories/marketing`): Copywriting, value proposition messaging, conversion funnels.
+7. **Career & Interviews** (`/categories/career`): System design interviews, resume bullet optimization, negotiation strategies.
+
+---
+
+## Developer API & Technical Architecture
+- Framework: Next.js 16 (App Router) + Turbopack
+- Styling: Tailwind CSS v4 + Custom Dark/Light Design System
+- Fonts: Inter, JetBrains Mono
+- Provider: OpenRouter API for multi-model fallback and streaming
+- Security: DevToolsGuard, strict CSP, HSTS, frame isolation, nosniff headers
